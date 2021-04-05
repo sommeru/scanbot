@@ -71,6 +71,27 @@ class RenameButton(jp.Div):
         self.text = 'Archiv'
         self.on('click', self.rename_clicked)
 
+    def construct_filename(self):
+        filename = self.renamerComponent.active_category + '/'
+        if self.renamerComponent.active_category == 'ssms' or self.renamerComponent.active_category == 'ifs':
+            filename = filename + self.renamerComponent.active_subcategory + '/'
+            if self.renamerComponent.active_subcategory == 'invoice':
+                filename = filename + self.renamerComponent.input_desc.my_input_field.value
+            elif self.renamerComponent.active_subcategory == 'doc':
+                filename = filename + self.renamerComponent.input_date.my_input_field.value + ' - '
+                filename = filename + self.renamerComponent.input_desc.my_input_field.value
+            else:
+                print('Subcategory Error')
+        elif self.renamerComponent.active_category == 'general':
+            filename = filename + self.renamerComponent.input_date.my_input_field.value + '-'
+            filename = filename + self.renamerComponent.input_number.my_input_field.value + '-'
+            filename = filename + self.renamerComponent.input_desc.my_input_field.value
+        else:
+            print('Category Error')
+            
+        filename=filename + '.pdf'
+        return(filename)
+
     def rename_clicked(self, msg):
         print('renaaaaame!')
         fname = self.renamerComponent.previewer.fname
@@ -82,7 +103,8 @@ class RenameButton(jp.Div):
             return
         else:
             try:
-                os.rename(fname, "out/" + date + '-' + number + '-' + desc + '.pdf')
+                #os.rename(fname, "out/" + date + '-' + number + '-' + desc + '.pdf')
+                print(self.construct_filename())
             except Exception as ex:
                 print("alles kaputt: {}".format(ex))
                 pass
@@ -108,7 +130,7 @@ class PdfPreviewer(jp.Div):
         self.update_preview()
 
     def update_preview(self):
-        pdfpath='./pdf/'
+        pdfpath='./in/'
         files = [f for f in listdir(pdfpath) if isfile(join(pdfpath, f))]
         pdffiles = list(filter(re.compile(".*.pdf").match, files))
 
