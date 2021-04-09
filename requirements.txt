@@ -1,1 +1,5 @@
+wheel
 watchdog
+justpy
+pdf2image
+ocrmypdf

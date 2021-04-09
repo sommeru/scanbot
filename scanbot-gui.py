@@ -1,10 +1,25 @@
 import justpy as jp
-from pdf2image import convert_from_path
 from os import listdir
+from pdf2image import convert_from_path
+
 from os.path import isfile, join
 import re
 import os
 import time
+
+dirDel = "outDeleted"
+dirIn = "in"
+dirOut = "outRename"
+dirOutFolders =["general","ssms/doc","ssms/invoice","ifs/doc","ifs/invoice"]
+
+def createDirs():
+    for path in dirOutFolders:
+        createpath = os.path.join(dirOut,path)
+        if not os.path.exists(createpath):
+            os.makedirs(createpath)
+    if not os.path.exists(dirDel):
+            os.makedirs(dirDel)
+
 
 class RefreshButton(jp.Div):
     def __init__(self, renamerComponent, **kwargs):
@@ -57,7 +72,7 @@ class DeleteButton(jp.Div):
         else:
             try:
                 basename = os.path.basename(fname)
-                os.rename(fname, "bin/" + basename)
+                os.rename(fname, dirDel + basename)
             except Exception as ex:
                 print("alles kaputt: {}".format(ex))
                 pass
@@ -103,7 +118,7 @@ class RenameButton(jp.Div):
             return
         else:
             try:
-                os.rename(fname, "out/" + self.construct_filename())
+                os.rename(fname, dirOut + '/' + self.construct_filename())
                 print(self.construct_filename())
             except Exception as ex:
                 print("alles kaputt: {}".format(ex))
@@ -130,7 +145,7 @@ class PdfPreviewer(jp.Div):
         self.update_preview()
 
     def update_preview(self):
-        pdfpath='./in/'
+        pdfpath='./' + dirIn + '/'
         files = [f for f in listdir(pdfpath) if isfile(join(pdfpath, f))]
         pdffiles = list(filter(re.compile(".*.pdf").match, files))
 
@@ -272,4 +287,5 @@ async def scanbot(request):
     rc = RenamerComponent(a=wp, active_category='general', active_subcategory='doc')
     return wp
 
+createDirs()
 jp.justpy(scanbot)
