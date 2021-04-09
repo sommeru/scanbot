@@ -103,7 +103,7 @@ class RenameButton(jp.Div):
             return
         else:
             try:
-                #os.rename(fname, "out/" + date + '-' + number + '-' + desc + '.pdf')
+                os.rename(fname, "out/" + self.construct_filename())
                 print(self.construct_filename())
             except Exception as ex:
                 print("alles kaputt: {}".format(ex))
