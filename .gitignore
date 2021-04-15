@@ -2,6 +2,9 @@
 *.pdf
 *.jpg
 
+#vim
+*.swp
+
 #Mac
 .DS_Store
 

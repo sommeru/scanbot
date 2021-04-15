@@ -1,3 +1,4 @@
+#!./venv/bin/python3
 import justpy as jp
 from os import listdir
 from pdf2image import convert_from_path
@@ -7,9 +8,9 @@ import re
 import os
 import time
 
-dirDel = "outDeleted"
-dirIn = "in"
-dirOut = "outRename"
+dirDel = "/home/scan/outDeleted"
+dirIn = "/home/scan/scantarget"
+dirOut = "/home/scan/outRename"
 dirOutFolders =["general","ssms/doc","ssms/invoice","ifs/doc","ifs/invoice"]
 
 def createDirs():
@@ -103,7 +104,7 @@ class RenameButton(jp.Div):
             filename = filename + self.renamerComponent.input_desc.my_input_field.value
         else:
             print('Category Error')
-            
+
         filename=filename + '.pdf'
         return(filename)
 
@@ -145,9 +146,9 @@ class PdfPreviewer(jp.Div):
         self.update_preview()
 
     def update_preview(self):
-        pdfpath='./' + dirIn + '/'
+        pdfpath=dirIn + '/'
         files = [f for f in listdir(pdfpath) if isfile(join(pdfpath, f))]
-        pdffiles = list(filter(re.compile(".*.pdf").match, files))
+        pdffiles = list(filter(re.compile("[^\.].*.pdf").match, files))
 
         self.renamerComponent.pdf_index_max = len(pdffiles) - 1
 
@@ -178,7 +179,7 @@ class CategoryButton(jp.Div):
         self.renamerComponent = renamerComponent
         self.category = category
         super().__init__(**kwargs)
-        
+
 
         self.button = jp.Div(a=self, text=category_desc)
         self.button.on('click', self.category_button_clicked)
@@ -201,7 +202,7 @@ class SubcategoryButton(jp.Div):
         self.renamerComponent = renamerComponent
         self.subcategory = subcategory
         super().__init__(**kwargs)
-        
+
 
         self.subbutton = jp.Div(a=self, text=subcategory_desc)
         self.subbutton.on('click', self.subcategory_button_clicked)
@@ -243,7 +244,7 @@ class RenamerComponent(jp.Div):
         PrevButton(self, a=prev_refresh_next_container)
         self.refreshbutton = RefreshButton(self, a=prev_refresh_next_container)
         NextButton(self, a=prev_refresh_next_container)
-        
+
         category_container = jp.Div(a=div_left, classes='grid grid-cols-3 gap-2 w-full')
         self.btn1 = CategoryButton('General', 'general', self, a=category_container)
         self.btn2 = CategoryButton('SSMS', 'ssms', self, a=category_container)
@@ -252,13 +253,13 @@ class RenamerComponent(jp.Div):
         self.subcategory_container = jp.Div(a=div_left, classes='grid grid-cols-2 gap-2 w-full')
         self.subbtn1 = SubcategoryButton('Rechnung', 'invoice', self, a=self.subcategory_container)
         self.subbtn2 = SubcategoryButton('Dokument', 'doc', self, a=self.subcategory_container)
-        
+
 
         self.input_date = InputField("Dokumentendatum", "z.B. 19830520", "", a=div_left)
         self.input_number = InputField("Fortlaufende Nummer", "z.B. 210123", "", a=div_left)
         self.input_desc = InputField("Beschreibung", "Beschreibender Text", "", a=div_left)
 
-        delete_rename_container = jp.Div(a=div_left, classes='absolute grid grid-cols-10 gap-2 w-full bottom-0')
+        delete_rename_container = jp.Div(a=div_left, classes='grid grid-cols-10 gap-2 w-full bottom-0')
         DeleteButton(self, a=delete_rename_container)
         RenameButton(self, a=delete_rename_container)
 
