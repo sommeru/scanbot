@@ -7,20 +7,62 @@ from os.path import isfile, join
 import re
 import os
 import time
+import configparser
 
-dirDel = "/home/scan/outDeleted"
-dirIn = "/home/scan/scantarget"
-dirOut = "/home/scan/outRename"
-dirOutFolders =["general","ssms/doc","ssms/invoice","ifs/doc","ifs/invoice"]
+config = configparser.ConfigParser()
+config.read('scanbot.conf')
+
+folderlist = {}
+for section in config.sections():
+    if section.startswith('server'):
+        folderlist[section] = {}
+        for option in config.options(section):
+            folderlist[section][option] = config.get(section, option)
+
+pathBase = config['Path']['pathBase']
+pathUpload = config['Path']['pathUpload']
+pathError = config['Path']['pathError']
+pathOCR = config['Path']['pathOCR']
+pathTrash = config['Path']['pathTrash']
+pathScanTarget = config['Path']['pathScanTarget']
 
 def createDirs():
-    for path in dirOutFolders:
-        createpath = os.path.join(dirOut,path)
-        if not os.path.exists(createpath):
-            os.makedirs(createpath)
-    if not os.path.exists(dirDel):
-            os.makedirs(dirDel)
+    for section in config.sections():
+      if section.startswith('server'):
+          createpath = os.path.join(pathUpload , folderlist[section]['folder'])
+          if not os.path.exists(createpath):
+              os.makedirs(createpath)
+    if not os.path.exists(pathError):
+            os.makedirs(pathError)
 
+createDirs()  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#dirIn = "/home/scan/scantarget"
+#dirOut = "/home/scan/outRename"
+dirOutFolders =["general","ssms/doc","ssms/invoice","ifs/doc","ifs/invoice"]
+
+
+def createDirs():
+    for section in config.sections():
+      if section.startswith('server'):
+          createpath = os.path.join(pathOCR , folderlist[section]['folder'])
+          if not os.path.exists(createpath):
+              os.makedirs(createpath)
+    if not os.path.exists(pathTrash):
+            os.makedirs(pathTrash)
 
 class RefreshButton(jp.Div):
     def __init__(self, renamerComponent, **kwargs):
@@ -73,7 +115,7 @@ class DeleteButton(jp.Div):
         else:
             try:
                 basename = os.path.basename(fname)
-                os.rename(fname, dirDel + basename)
+                os.rename(fname, pathTrash + basename)
             except Exception as ex:
                 print("alles kaputt: {}".format(ex))
                 pass
@@ -84,7 +126,7 @@ class RenameButton(jp.Div):
         self.renamerComponent = renamerComponent
         super().__init__(**kwargs)
         self.classes = 'text-center w-full text-xl m-2 p-1 bg-green-500 text-white font-bold rounded-full col-span-9'
-        self.text = 'Archiv'
+        self.text = 'Upload'
         self.on('click', self.rename_clicked)
 
     def construct_filename(self):
@@ -119,7 +161,7 @@ class RenameButton(jp.Div):
             return
         else:
             try:
-                os.rename(fname, dirOut + '/' + self.construct_filename())
+                os.rename(fname, pathOCR + '/' + self.construct_filename())
                 print(self.construct_filename())
             except Exception as ex:
                 print("alles kaputt: {}".format(ex))
@@ -146,7 +188,7 @@ class PdfPreviewer(jp.Div):
         self.update_preview()
 
     def update_preview(self):
-        pdfpath=dirIn + '/'
+        pdfpath=pathScanTarget + '/'
         files = [f for f in listdir(pdfpath) if isfile(join(pdfpath, f))]
         pdffiles = list(filter(re.compile("[^\.].*.pdf").match, files))
 

@@ -1,37 +1,48 @@
+#!./venv/bin/python3
+
 import os
 import sys
-import ocrmypdf
-import logging
 import time
 import subprocess
+import configparser
 
-dirOCR = "outRename"
-dirOut = "outOCR"
-dirError = "outError"
 exitok = False
 
-dirOutFolders =["general","ssms/doc","ssms/invoice","ifs/doc","ifs/invoice"]
+config = configparser.ConfigParser()
+config.read('scanbot.conf')
+
+folderlist = {}
+for section in config.sections():
+    if section.startswith('server'):
+        folderlist[section] = {}
+        for option in config.options(section):
+            folderlist[section][option] = config.get(section, option)
+
+pathBase = config['Path']['pathBase']
+pathUpload = config['Path']['pathUpload']
+pathError = config['Path']['pathError']
+pathOCR = config['Path']['pathOCR']
 
 def createDirs():
-    for path in dirOutFolders:
-        createpath = os.path.join(dirOut,path)
-        if not os.path.exists(createpath):
-            os.makedirs(createpath)
-    if not os.path.exists(dirError):
-            os.makedirs(dirError)
+    for section in config.sections():
+      if section.startswith('server'):
+          createpath = os.path.join(pathUpload , folderlist[section]['folder'])
+          if not os.path.exists(createpath):
+              os.makedirs(createpath)
+    if not os.path.exists(pathError):
+            os.makedirs(pathError)
 
 createDirs()     
 
 while True:
-    for root, subFolders, files in os.walk(dirOCR):
+    for root, subFolders, files in os.walk(pathOCR):
         for file in files:
             if os.path.splitext(file)[1] == ".pdf":
                     if __name__ == '__main__':
                         print('foundone: ' + os.path.join(root,file))
                         try:
-                            outfile = os.path.join(root.replace(dirOCR, dirOut),file)
+                            outfile = os.path.join(root.replace(dirOCR, pathUpload),file)
                             infile = os.path.join(root,file)
-                            #result = ocrmypdf.ocr(infile,outfile, l="deu+eng", deskew=True)
                             ocrprocess = subprocess.call(["ocrmypdf", infile, outfile, "-l=deu+eng", "--deskew" ])
                         
                             if ocrprocess == 0:
@@ -57,7 +68,7 @@ while True:
                             os.remove(infile)
                             print("All ok. Removed file: " + infile)
                         else:
-                            os.rename(infile, os.path.join(dirError,file))
+                            os.rename(infile, os.path.join(pathError,file))
                             print("Error... Moved file to error folder: " + infile)                  
     time.sleep(10)
 

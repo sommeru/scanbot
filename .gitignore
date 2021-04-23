@@ -1,6 +1,8 @@
 #Project specific
 *.pdf
 *.jpg
+*.conf.private
+*.conf.public
 
 #vim
 *.swp

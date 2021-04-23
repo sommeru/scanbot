@@ -26,8 +26,12 @@ apt-get -y install \
 	tesseract-ocr-deu \
 	ocrmypdf
 
-# raspberrypi-ui-mods \
-
+cat <<EOT >> /etc/dhcpcd.conf
+interface wlan0
+static ip_address=10.0.0.32/24
+static routers=10.0.0.1
+static domain_name_servers=1.2.3.4
+EOT
 
 # Choosing right display orientation
 ### echo lcd_rotate=2 >> /boot/config.txt
