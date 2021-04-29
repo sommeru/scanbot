@@ -188,7 +188,8 @@ class PdfPreviewer(jp.Div):
         self.update_preview()
 
     def update_preview(self):
-        pdfpath=pathScanTarget + '/'
+        pdfpath=pathBase + '/' + pathScanTarget + '/'
+        #pdfpath=pathScanTarget + '/'
         files = [f for f in listdir(pdfpath) if isfile(join(pdfpath, f))]
         pdffiles = list(filter(re.compile("[^\.].*.pdf").match, files))
 
@@ -207,7 +208,7 @@ class PdfPreviewer(jp.Div):
 
             self.remove_component(self.image)
             self.image.delete()
-            self.image = jp.Img(a=self,src='static/tmp-img.jpg?r={}'.format(time.time()), classes='w-full')
+            self.image = jp.Img(a=self,src='static/tmp-img.jpg?r={}'.format(time.time()), classes='h-screen max-w-max')
             self.fname = pdffile
         else:
             self.remove_component(self.image)

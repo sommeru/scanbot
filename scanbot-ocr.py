@@ -41,7 +41,7 @@ while True:
                     if __name__ == '__main__':
                         print('foundone: ' + os.path.join(root,file))
                         try:
-                            outfile = os.path.join(root.replace(dirOCR, pathUpload),file)
+                            outfile = os.path.join(root.replace(pathOCR, pathUpload),file)
                             infile = os.path.join(root,file)
                             ocrprocess = subprocess.call(["ocrmypdf", infile, outfile, "-l=deu+eng", "--deskew" ])
                         

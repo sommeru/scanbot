@@ -1,0 +1,14 @@
+[Unit]
+Description=Scanbot OCR Backend
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3  /home/pi/scanbot/scanbot-ocr.py
+WorkingDirectory=/home/pi/scanbot
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target
