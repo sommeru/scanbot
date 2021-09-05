@@ -26,22 +26,22 @@ pathOCR = config['Path']['pathOCR']
 def createDirs():
     for section in config.sections():
       if section.startswith('server'):
-          createpath = os.path.join(pathUpload , folderlist[section]['folder'])
+          createpath = os.path.join(pathBase, pathUpload , folderlist[section]['folder'])
           if not os.path.exists(createpath):
               os.makedirs(createpath)
-    if not os.path.exists(pathError):
-            os.makedirs(pathError)
+    if not os.path.exists(os.path.join(pathBase, pathError)):
+            os.makedirs(os.path.join(pathBase, pathError))
 
 createDirs()     
 
 while True:
-    for root, subFolders, files in os.walk(pathOCR):
+    for root, subFolders, files in os.walk(pathBase + '/' + pathOCR):
         for file in files:
             if os.path.splitext(file)[1] == ".pdf":
                     if __name__ == '__main__':
                         print('foundone: ' + os.path.join(root,file))
                         try:
-                            outfile = os.path.join(root.replace(pathOCR, pathUpload),file)
+                            outfile = os.path.join(pathBase, root.replace(pathOCR, pathUpload),file)
                             infile = os.path.join(root,file)
                             ocrprocess = subprocess.call(["ocrmypdf", infile, outfile, "-l=deu+eng", "--deskew" ])
                         
@@ -68,7 +68,7 @@ while True:
                             os.remove(infile)
                             print("All ok. Removed file: " + infile)
                         else:
-                            os.rename(infile, os.path.join(pathError,file))
+                            os.rename(infile, os.path.join(pathBase, pathError,file))
                             print("Error... Moved file to error folder: " + infile)                  
     time.sleep(10)
 
@@ -76,3 +76,4 @@ while True:
 
 
   
+

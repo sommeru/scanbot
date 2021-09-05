@@ -29,40 +29,13 @@ pathScanTarget = config['Path']['pathScanTarget']
 def createDirs():
     for section in config.sections():
       if section.startswith('server'):
-          createpath = os.path.join(pathUpload , folderlist[section]['folder'])
+          createpath = os.path.join(pathBase, pathUpload , folderlist[section]['folder'])
           if not os.path.exists(createpath):
               os.makedirs(createpath)
     if not os.path.exists(pathError):
-            os.makedirs(pathError)
+            os.makedirs(pathBase + pathError)
 
-createDirs()  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#dirIn = "/home/scan/scantarget"
-#dirOut = "/home/scan/outRename"
-dirOutFolders =["general","ssms/doc","ssms/invoice","ifs/doc","ifs/invoice"]
-
-
-def createDirs():
-    for section in config.sections():
-      if section.startswith('server'):
-          createpath = os.path.join(pathOCR , folderlist[section]['folder'])
-          if not os.path.exists(createpath):
-              os.makedirs(createpath)
-    if not os.path.exists(pathTrash):
-            os.makedirs(pathTrash)
+createDirs()
 
 class RefreshButton(jp.Div):
     def __init__(self, renamerComponent, **kwargs):
@@ -115,7 +88,7 @@ class DeleteButton(jp.Div):
         else:
             try:
                 basename = os.path.basename(fname)
-                os.rename(fname, pathTrash + basename)
+                os.rename(fname, pathBase + '/' + pathTrash + '/' + basename)
             except Exception as ex:
                 print("alles kaputt: {}".format(ex))
                 pass
@@ -134,6 +107,7 @@ class RenameButton(jp.Div):
         if self.renamerComponent.active_category == 'ssms' or self.renamerComponent.active_category == 'ifs':
             filename = filename + self.renamerComponent.active_subcategory + '/'
             if self.renamerComponent.active_subcategory == 'invoice':
+                filename = filename + self.renamerComponent.input_date.my_input_field.value + ' - '
                 filename = filename + self.renamerComponent.input_desc.my_input_field.value
             elif self.renamerComponent.active_subcategory == 'doc':
                 filename = filename + self.renamerComponent.input_date.my_input_field.value + ' - '
@@ -158,15 +132,18 @@ class RenameButton(jp.Div):
         desc = self.renamerComponent.input_desc.my_input_field.value
 
         if fname is None:
+            self.renamerComponent.input_desc.my_input_field.value = ''
             return
         else:
             try:
-                os.rename(fname, pathOCR + '/' + self.construct_filename())
+                os.rename(fname, pathBase + '/' + pathOCR + '/' + self.construct_filename())
                 print(self.construct_filename())
+                self.renamerComponent.input_desc.my_input_field.value = ''
             except Exception as ex:
                 print("alles kaputt: {}".format(ex))
                 pass
             self.renamerComponent.previewer.update_preview()
+
 
 class InputField(jp.Div):
     def __init__(self, description, placeholder, initial_value, **kwargs):
@@ -213,7 +190,7 @@ class PdfPreviewer(jp.Div):
         else:
             self.remove_component(self.image)
             self.image.delete()
-            self.image = jp.Div(a=self, text="Kein PDF gefunden :(")
+            self.image = jp.Div(a=self, text="Kein PDF gefunden :(",  classes='text-center text-xl m-2 w-11/12 p-1 bg-red-600 text-white font-bold rounded')
             self.fname = None
 
 class CategoryButton(jp.Div):
